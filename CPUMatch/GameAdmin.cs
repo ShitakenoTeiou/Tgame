@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class GameAdmin : MonoBehaviour
 {
-    public int a;
+    public int tomoya;
     // Start is called before the first frame update
     void Start()
     {
