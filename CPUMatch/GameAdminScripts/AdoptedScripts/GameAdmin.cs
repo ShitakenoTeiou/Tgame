@@ -18,6 +18,7 @@ public class GameAdmin : MonoBehaviour
     Text frontText;
     Text oyaNameText;
     TurnAdmin TA;
+    BoardAdmin BA;
     PCardAttach[] PCA = new PCardAttach[6];
 
     // Start is called before the first frame update
@@ -25,6 +26,7 @@ public class GameAdmin : MonoBehaviour
     {
         choicedNum = 0;
         TA = GameObject.Find("TurnAdmin").GetComponent<TurnAdmin>();
+        BA = GameObject.Find("Board").GetComponent<BoardAdmin>();
         frontText = GameObject.Find("FrontText").GetComponent<Text>();
         frontTextObj = GameObject.Find("FrontText");
         oyaNameobj = GameObject.Find("OyaName");
@@ -39,11 +41,12 @@ public class GameAdmin : MonoBehaviour
         frontText.text = NowRole.ToString() + "からスタートです。";
         frontTextObj.SetActive(true);
         oyaNameText.text = NowRole.ToString();
-        canGameAdminStart = true;
         for (int i = 0; i < 6; i++)
         {
             PCA[i] = GameObject.Find("PlayerCard" + (i + 1)).GetComponent<PCardAttach>();
         }
+        BA.isBoardAdminActivated = true;
+        //ここで、マップの配置を行う。
     }
     // Update is called once per frame
     void Update()
