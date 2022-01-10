@@ -9,9 +9,19 @@ public class RoleAttach : MonoBehaviour
     public bool hasFinishedChoicing = false;
     public bool isNumChoiced = false;
     public int turnNum;
+    //GameAdminから来る値
     public int roleNum;
+    //Comの何番目か、もしくは、プレイヤーかを判断する値。
     public int choicedNum;
     public string roleName;
+    public Vector3 nowPos;
+    public int nowPathNum = 0;
+    //何番目の分岐かを表す。
+    public int nowCellNum = 0;
+    //分岐の中の何番目のマスなのかを表す。
+    public int turnCount;
+    //０からスタートして、4人分回って自分の番になったら、０に戻る。
+
     GameObject[] CPUCards = new GameObject[6];
     Vector3[] CPUDefPos = new Vector3[6];
     TurnAdmin TA;

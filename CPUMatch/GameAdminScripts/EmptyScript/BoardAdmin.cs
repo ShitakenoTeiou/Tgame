@@ -6,6 +6,7 @@ public class BoardAdmin : MonoBehaviour
 {
     public bool isBoardAdminActivated = false;
     GameAdmin GA;
+    RoleAttach[] RA = new RoleAttach[4];
     public int cellRowID;
     public int cellColumnID;
     public int cellEffectNum;
@@ -20,14 +21,21 @@ public class BoardAdmin : MonoBehaviour
     GameObject Com2Piece;
     GameObject Com3Piece;
 
+
     // Update is called once per frame
     private void Start()
     {
         GA = GameObject.Find("GameAdmin").GetComponent<GameAdmin>();
+        for (int i = 0; i < 4; i++)
+        {
+            RA[i] = GameObject.Find("Role" + i).GetComponent<RoleAttach>();
+        }
+
         PlayerPiece = GameObject.Find("PlayerPiece");
         Com1Piece = GameObject.Find("Com1Piece");
         Com2Piece = GameObject.Find("Com2Piece");
         Com3Piece = GameObject.Find("Com3Piece");
+
 
     }
 
@@ -73,6 +81,11 @@ public class BoardAdmin : MonoBehaviour
                             Com1Piece.transform.position = cellPos + new Vector3(2, 1, 2);
                             Com2Piece.transform.position = cellPos + new Vector3(-2, 1, 2);
                             Com3Piece.transform.position = cellPos + new Vector3(2, 1, -2);
+                            RA[0].nowPos = PlayerPiece.transform.position;
+                            RA[1].nowPos = Com1Piece.transform.position;
+                            RA[2].nowPos = Com2Piece.transform.position;
+                            RA[3].nowPos = Com3Piece.transform.position;
+
                             break;
                         case 6:
                             originalCell = GameObject.Find("GoalCell");

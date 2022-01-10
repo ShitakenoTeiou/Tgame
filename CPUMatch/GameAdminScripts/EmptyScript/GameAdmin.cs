@@ -19,6 +19,7 @@ public class GameAdmin : MonoBehaviour
     Text oyaNameText;
     TurnAdmin TA;
     BoardAdmin BA;
+    RoleAttach[] RA = new RoleAttach[4];
     PCardAttach[] PCA = new PCardAttach[6];
 
     // Start is called before the first frame update
@@ -27,6 +28,13 @@ public class GameAdmin : MonoBehaviour
         choicedNum = 0;
         TA = GameObject.Find("TurnAdmin").GetComponent<TurnAdmin>();
         BA = GameObject.Find("Board").GetComponent<BoardAdmin>();
+        for (int i = 0; i < 4; i++)
+        {
+            RA[i] = GameObject.Find("Role" + i).GetComponent<RoleAttach>();
+        }
+
+
+
         frontText = GameObject.Find("FrontText").GetComponent<Text>();
         frontTextObj = GameObject.Find("FrontText");
         oyaNameobj = GameObject.Find("OyaName");
