@@ -15,11 +15,20 @@ public class BoardAdmin : MonoBehaviour
     GameObject originalCell;
     GameObject onBoardCell;
     GameObject instantiatedCell;
+    GameObject PlayerPiece;
+    GameObject Com1Piece;
+    GameObject Com2Piece;
+    GameObject Com3Piece;
 
     // Update is called once per frame
     private void Start()
     {
         GA = GameObject.Find("GameAdmin").GetComponent<GameAdmin>();
+        PlayerPiece = GameObject.Find("PlayerPiece");
+        Com1Piece = GameObject.Find("Com1Piece");
+        Com2Piece = GameObject.Find("Com2Piece");
+        Com3Piece = GameObject.Find("Com3Piece");
+
     }
 
     void Update()
@@ -59,10 +68,14 @@ public class BoardAdmin : MonoBehaviour
                             originalCell = GameObject.Find("BackToStartCell");
                             break;
                         case 5:
-                            originalCell = GameObject.Find("GoalCell");
+                            originalCell = GameObject.Find("StartCell");
+                            PlayerPiece.transform.position = cellPos + new Vector3(-2, 1, -2);
+                            Com1Piece.transform.position = cellPos + new Vector3(2, 1, 2);
+                            Com2Piece.transform.position = cellPos + new Vector3(-2, 1, 2);
+                            Com3Piece.transform.position = cellPos + new Vector3(2, 1, -2);
                             break;
                         case 6:
-                            originalCell = GameObject.Find("StartCell");
+                            originalCell = GameObject.Find("GoalCell");
                             break;
                     }
                     InstantiateAndRenameBranch(originalCell, onBoardCell, ref instantiatedCell, i , j);
@@ -77,4 +90,6 @@ public class BoardAdmin : MonoBehaviour
         instantiatedCell = (Instantiate(originalCell, cellPos, Quaternion.identity, onBoardCell.transform));
         instantiatedCell.name = "Cell" + i + "" +  j;
     }
+
+
 }

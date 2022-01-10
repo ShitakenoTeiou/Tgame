@@ -13,6 +13,10 @@ public class TurnAdmin : MonoBehaviour
     public bool HasGivenPrmToRA = false;
     RoleAttach[] RA = new RoleAttach[4];
     GameAdmin GA;
+    GameObject PlayerPiece;
+    GameObject Com1Piece;
+    GameObject Com2Piece;
+    GameObject Com3Piece;
     // Start is called before the first frame update
     void Start()
     {
@@ -22,6 +26,10 @@ public class TurnAdmin : MonoBehaviour
             Hasblocked[i] = false;
         }
         GA = GameObject.Find("GameAdmin").GetComponent<GameAdmin>();
+        PlayerPiece = GameObject.Find("PlayerPiece");
+        Com1Piece = GameObject.Find("Com1Piece");
+        Com2Piece = GameObject.Find("Com2Piece");
+        Com3Piece = GameObject.Find("Com3Piece");
     }
 
     // Update is called once per frame
@@ -134,6 +142,7 @@ public class TurnAdmin : MonoBehaviour
         {
             Debug.Log(DebugName[firstTurnNum] + "はブロックされませんでした。" + RA[firstTurnNum].choicedNum + "マス進みます");
             GA.ChangeFrontText(DebugName[firstTurnNum] + "はブロックされませんでした。\n" + RA[firstTurnNum].choicedNum.ToString() + "マス進みます");
+            //GameObject.Find(DebugName[firstTurnNum]).transform.position += new Vector3(0,0,0);
             yield return new WaitForSeconds(2);
             GA.FadeOutfrontText();
         }
