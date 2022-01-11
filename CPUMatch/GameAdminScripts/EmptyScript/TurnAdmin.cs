@@ -17,6 +17,8 @@ public class TurnAdmin : MonoBehaviour
     GameObject Com1Piece;
     GameObject Com2Piece;
     GameObject Com3Piece;
+    string loadProductString;
+    SaveData.SampleMapData loadProductInstance;
 
     // Start is called before the first frame update
     void Start()
@@ -32,8 +34,8 @@ public class TurnAdmin : MonoBehaviour
         Com2Piece = GameObject.Find("Com2Piece");
         Com3Piece = GameObject.Find("Com3Piece");
 
-        string loadProductString = PlayerPrefs.GetString("SaveData");
-        SaveData.SampleMapData loadProductInstance = JsonUtility.FromJson<SaveData.SampleMapData>(loadProductString);
+        loadProductString = PlayerPrefs.GetString("SaveData");
+        loadProductInstance = JsonUtility.FromJson<SaveData.SampleMapData>(loadProductString);
     }
 
     // Update is called once per frame
@@ -76,7 +78,7 @@ public class TurnAdmin : MonoBehaviour
         {
             if (i == 0)
             {
-                DebugName[i] = "プレイヤー";
+                DebugName[i] = "Player";
                 Debug.Log(DebugName[i] + "の数字は、" + RA[i].choicedNum);
             }
             else
@@ -140,15 +142,22 @@ public class TurnAdmin : MonoBehaviour
             
 
         }
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2);
 
         if (PieceCanMove)
         {
             Debug.Log(DebugName[firstTurnNum] + "はブロックされませんでした。" + RA[firstTurnNum].choicedNum + "マス進みます");
             GA.ChangeFrontText(DebugName[firstTurnNum] + "はブロックされませんでした。\n" + RA[firstTurnNum].choicedNum.ToString() + "マス進みます");
-            //loadProductInstance.pathList[RA[firstTurnNum].nowPathNum].Count
-            //なんか、インスタンスが反映されてない。
-            //GameObject.Find(DebugName[firstTurnNum]).transform.position += new Vector3(0,0,0);
+            
+            for (int i = 0; i< RA[firstTurnNum].choicedNum; i++)
+            {
+                PieceMoveForward(DebugName[firstTurnNum]);
+                yield return new WaitForSeconds(1);
+            }
+
+
+
+
             yield return new WaitForSeconds(2);
             GA.FadeOutfrontText();
         }
@@ -182,4 +191,43 @@ public class TurnAdmin : MonoBehaviour
         Debug.Log("ターンが終了しました。");
         GA.canGameAdminStart = true;
     }
+
+    public void PieceMoveForward(string OyaPlayer)
+    {
+
+        int currentPathCount = RA[firstTurnNum].currentPathCount;
+        int CurrentCellCount = RA[firstTurnNum].currentCellCount;
+        int CurrentCellCordinateRowID = loadProductInstance.pathList[currentPathCount].holdingCell[CurrentCellCount].cordinates[0];
+        int CurrentCellCordinateColumnID = loadProductInstance.pathList[currentPathCount].holdingCell[CurrentCellCount].cordinates[1];
+        int nextCellCordinateRowID;
+        int nextCellCordinateColumnID;
+
+
+        if (CurrentCellCount + 1 < loadProductInstance.pathList[currentPathCount].holdingCell.Count)
+        {
+            nextCellCordinateRowID = loadProductInstance.pathList[currentPathCount].holdingCell[CurrentCellCount + 1].cordinates[0];
+            nextCellCordinateColumnID = loadProductInstance.pathList[currentPathCount].holdingCell[CurrentCellCount + 1].cordinates[1];
+            RA[firstTurnNum].currentCellCount += 1;
+        }
+        else
+        {
+            //一旦、ネクストパスの選択を固定にしている。nextPath[]の数字の中身を選択させることで、分岐を選択できるようにする。
+            nextCellCordinateRowID = loadProductInstance.pathList[loadProductInstance.pathList[currentPathCount].nextPath[0]].holdingCell[0].cordinates[0];
+            nextCellCordinateColumnID = loadProductInstance.pathList[loadProductInstance.pathList[currentPathCount].nextPath[0]].holdingCell[0].cordinates[0];
+            RA[firstTurnNum].currentPathCount += 1;
+            RA[firstTurnNum].currentCellCount = 0;
+        }
+    
+
+            if(CurrentCellCordinateRowID == nextCellCordinateRowID)
+        {
+            GameObject.Find(OyaPlayer + "Piece").transform.position += new Vector3(13 * (nextCellCordinateColumnID - CurrentCellCordinateColumnID), 0, 0);
+        }
+        else
+        {
+            GameObject.Find(OyaPlayer + "Piece").transform.position += new Vector3(0, 0, -12 * (nextCellCordinateRowID - CurrentCellCordinateRowID));
+        }
+
+    }
+
 }
