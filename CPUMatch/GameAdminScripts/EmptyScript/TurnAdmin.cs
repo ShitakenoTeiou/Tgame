@@ -19,6 +19,16 @@ public class TurnAdmin : MonoBehaviour
     GameObject Com3Piece;
     string loadProductString;
     SaveData.SampleMapData loadProductInstance;
+    enum CellTypeNum : int
+    {
+        Nothing = 0,
+        Normal = 1,
+        Backward = 2,
+        Forward = 3,
+        GoStart = 4,
+        Start = 5,
+        Goal = 6
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -110,25 +120,25 @@ public class TurnAdmin : MonoBehaviour
     IEnumerator MoveComCards(string[] DebugName)
     {
         Debug.Log("これから、進行の判定を行います");
-        yield return new WaitForSeconds(1);
+        //yield return new WaitForSeconds(1);
         GA.ChangeFrontText("これから、進行の判定を行います");
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.5f);
         GA.FadeOutfrontText();
 
-        yield return new WaitForSeconds(1);
+        //yield return new WaitForSeconds(1);
         GA.ChangeFrontText("親のカードは・・・");
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.5f);
         GA.FadeOutfrontText();
 
         RA[firstTurnNum].MoveComCard(firstTurnNum, RA[firstTurnNum].choicedNum);
-        yield return new WaitForSeconds(1);
+        //yield return new WaitForSeconds(1);
         GA.ChangeFrontText(RA[firstTurnNum].choicedNum + "でした！");
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.5f);
         GA.FadeOutfrontText();
 
-        yield return new WaitForSeconds(1);
+        //yield return new WaitForSeconds(1);
         GA.ChangeFrontText("子の皆さんの予想したカードはこちら！");
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.5f);
         GA.FadeOutfrontText();
 
 
@@ -139,27 +149,34 @@ public class TurnAdmin : MonoBehaviour
                 RA[i].MoveComCard(i, RA[i].choicedNum);
                 Debug.Log("Role" + i + "のカードが動きました");
             }
-            
-
         }
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(0.5f);
 
         if (PieceCanMove)
         {
             Debug.Log(DebugName[firstTurnNum] + "はブロックされませんでした。" + RA[firstTurnNum].choicedNum + "マス進みます");
             GA.ChangeFrontText(DebugName[firstTurnNum] + "はブロックされませんでした。\n" + RA[firstTurnNum].choicedNum.ToString() + "マス進みます");
-            
+
+            //ここで進行処理
+            int isGoalCheckNum;
             for (int i = 0; i< RA[firstTurnNum].choicedNum; i++)
             {
-                PieceMoveForward(DebugName[firstTurnNum]);
-                yield return new WaitForSeconds(1);
+                isGoalCheckNum = PieceMoveForward(DebugName[firstTurnNum]);
+                if(isGoalCheckNum == 1)
+                {
+                    break;
+                }
+                yield return new WaitForSeconds(0.5f);
             }
 
-
-
-
-            yield return new WaitForSeconds(2);
+            //ここで、マスの処理
             GA.FadeOutfrontText();
+            GA.ChangeFrontText(InvokeCellEffect(DebugName[firstTurnNum]));
+            yield return new WaitForSeconds(0.5f);
+            GA.FadeOutfrontText();
+
+            yield return new WaitForSeconds(0.5f);
+            
         }
         else
         {
@@ -192,42 +209,163 @@ public class TurnAdmin : MonoBehaviour
         GA.canGameAdminStart = true;
     }
 
-    public void PieceMoveForward(string OyaPlayer)
+    public int PieceMoveForward(string OyaPlayer)
     {
 
-        int currentPathCount = RA[firstTurnNum].currentPathCount;
-        int CurrentCellCount = RA[firstTurnNum].currentCellCount;
-        int CurrentCellCordinateRowID = loadProductInstance.pathList[currentPathCount].holdingCell[CurrentCellCount].cordinates[0];
-        int CurrentCellCordinateColumnID = loadProductInstance.pathList[currentPathCount].holdingCell[CurrentCellCount].cordinates[1];
+        int currentPathNum = RA[firstTurnNum].currentPathCount;
+        int currentCellCount = RA[firstTurnNum].currentCellCount;
+        int currentCellCordinateRowID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount].cordinates[0];
+        int currentCellCordinateColumnID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount].cordinates[1];
         int nextCellCordinateRowID;
         int nextCellCordinateColumnID;
 
 
-        if (CurrentCellCount + 1 < loadProductInstance.pathList[currentPathCount].holdingCell.Count)
+        if (currentCellCount + 1 < loadProductInstance.pathList[currentPathNum].holdingCell.Count)
         {
-            nextCellCordinateRowID = loadProductInstance.pathList[currentPathCount].holdingCell[CurrentCellCount + 1].cordinates[0];
-            nextCellCordinateColumnID = loadProductInstance.pathList[currentPathCount].holdingCell[CurrentCellCount + 1].cordinates[1];
+            nextCellCordinateRowID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount + 1].cordinates[0];
+            nextCellCordinateColumnID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount + 1].cordinates[1];
             RA[firstTurnNum].currentCellCount += 1;
         }
         else
         {
             //一旦、ネクストパスの選択を固定にしている。nextPath[]の数字の中身を選択させることで、分岐を選択できるようにする。
-            nextCellCordinateRowID = loadProductInstance.pathList[loadProductInstance.pathList[currentPathCount].nextPath[0]].holdingCell[0].cordinates[0];
-            nextCellCordinateColumnID = loadProductInstance.pathList[loadProductInstance.pathList[currentPathCount].nextPath[0]].holdingCell[0].cordinates[0];
-            RA[firstTurnNum].currentPathCount += 1;
+            nextCellCordinateRowID = loadProductInstance.pathList[loadProductInstance.pathList[currentPathNum].nextPath[0]].holdingCell[0].cordinates[0];
+            nextCellCordinateColumnID = loadProductInstance.pathList[loadProductInstance.pathList[currentPathNum].nextPath[0]].holdingCell[0].cordinates[1];
+            RA[firstTurnNum].pastPathNum.Add(currentPathNum);
+            RA[firstTurnNum].currentPathCount = loadProductInstance.pathList[currentPathNum].nextPath[0];
+            if (loadProductInstance.pathList[currentPathNum].nextPath[0] == 0)
+            {
+                return 1;
+            }
             RA[firstTurnNum].currentCellCount = 0;
         }
     
 
-            if(CurrentCellCordinateRowID == nextCellCordinateRowID)
+            if(currentCellCordinateRowID == nextCellCordinateRowID)
         {
-            GameObject.Find(OyaPlayer + "Piece").transform.position += new Vector3(13 * (nextCellCordinateColumnID - CurrentCellCordinateColumnID), 0, 0);
+            GameObject.Find(OyaPlayer + "Piece").transform.position += new Vector3(13 * (nextCellCordinateColumnID - currentCellCordinateColumnID), 0, 0);
         }
         else
         {
-            GameObject.Find(OyaPlayer + "Piece").transform.position += new Vector3(0, 0, -12 * (nextCellCordinateRowID - CurrentCellCordinateRowID));
+            GameObject.Find(OyaPlayer + "Piece").transform.position += new Vector3(0, 0, -12 * (nextCellCordinateRowID - currentCellCordinateRowID));
         }
 
+        return 0;
+
+    }
+
+    public int PieceMoveBackward(string OyaPlayer)
+    {
+        int currentPathNum = RA[firstTurnNum].currentPathCount;
+        int currentCellCount = RA[firstTurnNum].currentCellCount;
+        int currentCellCordinateRowID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount].cordinates[0];
+        int currentCellCordinateColumnID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount].cordinates[1];
+        int nextCellCordinateRowID;
+        int nextCellCordinateColumnID;
+
+        if(currentCellCount == 0)
+        {
+            nextCellCordinateRowID = loadProductInstance.pathList[RA[firstTurnNum].pastPathNum[RA[firstTurnNum].pastPathNum.Count - 1]].holdingCell[0].cordinates[0];
+            nextCellCordinateColumnID = loadProductInstance.pathList[RA[firstTurnNum].pastPathNum[RA[firstTurnNum].pastPathNum.Count - 1]].holdingCell[0].cordinates[1];
+            RA[firstTurnNum].pastPathNum.RemoveAt(RA[firstTurnNum].pastPathNum.Count - 1);
+            RA[firstTurnNum].currentPathCount = RA[firstTurnNum].pastPathNum[RA[firstTurnNum].pastPathNum.Count - 1];
+            RA[firstTurnNum].currentCellCount = loadProductInstance.pathList.Count - 1;
+            if ((RA[firstTurnNum].currentPathCount == 0) && (RA[firstTurnNum].currentCellCount == 0))
+            {
+                return 1;
+            }
+            
+        }
+        else
+        {
+            nextCellCordinateRowID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount - 1].cordinates[0];
+            nextCellCordinateColumnID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount - 1].cordinates[1];
+            RA[firstTurnNum].currentCellCount -= 1;
+        }
+
+        if (currentCellCordinateRowID == nextCellCordinateRowID)
+        {
+            GameObject.Find(OyaPlayer + "Piece").transform.position += new Vector3(13 * (nextCellCordinateColumnID - currentCellCordinateColumnID), 0, 0);
+        }
+        else
+        {
+            GameObject.Find(OyaPlayer + "Piece").transform.position += new Vector3(0, 0, -12 * (nextCellCordinateRowID - currentCellCordinateRowID));
+        }
+
+        return 0;
+    }
+
+
+        public string InvokeCellEffect(string OyaPlayer)
+    {
+        int currentPathNum = RA[firstTurnNum].currentPathCount;
+        int currentCellCount = RA[firstTurnNum].currentCellCount;
+        int currentCellEffectNum = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount].effectNum;
+        int cellEffectNumTenPlace = (currentCellEffectNum - (currentCellEffectNum % 10)) / 10;
+        int cellEffectNumOnePlace = currentCellEffectNum % 10;
+
+        Vector3 defaultPos = new Vector3(0, 0, 0);
+        switch (firstTurnNum)
+        {
+            case 0:
+                defaultPos = new Vector3(-2, 1, -2);
+                break;
+            case 1:
+                defaultPos = new Vector3(2, 1, 2);
+                break;
+            case 2:
+                defaultPos = new Vector3(-2, 1, 2);
+                break;
+            case 3:
+                defaultPos = new Vector3(2, 1, -2);
+                break;
+        }
+
+
+        switch (cellEffectNumTenPlace)
+        {
+            case (int)CellTypeNum.Nothing:
+                return "エラーだわ、これ";
+            case (int)CellTypeNum.Normal:
+                return "つまんね";
+            case (int)CellTypeNum.Backward:
+
+                for (int i = 0; i < cellEffectNumOnePlace; i++)
+                {
+                    int isGoalCheckNum;
+                    isGoalCheckNum = PieceMoveBackward(OyaPlayer);
+                    if (isGoalCheckNum == 1)
+                    {
+                        return "はい、初めから";
+                    }
+                }
+
+                return "ざまあ";
+            case (int)CellTypeNum.Forward:
+                for (int i = 0; i<cellEffectNumOnePlace; i++)
+                {
+                    int isGoalCheckNum;
+                    isGoalCheckNum = PieceMoveForward(OyaPlayer);
+
+                    if(isGoalCheckNum == 1)
+                    {
+                        return "おめー";
+                    }
+                }
+                return "は？何進んでんだよ";
+            case (int)CellTypeNum.GoStart:
+                GameObject.Find(OyaPlayer + "Piece").transform.position = new Vector3((loadProductInstance.pathList[0].holdingCell[0].cordinates[1] * 13) - 100, 2, 43 - ((loadProductInstance.pathList[0].holdingCell[0].cordinates[0] - 1) * 12)) + defaultPos;
+                RA[firstTurnNum].pastPathNum = new List<int>() { 0 };
+                RA[firstTurnNum].currentPathCount = 0;
+                RA[firstTurnNum].currentCellCount = 0;
+                return "はい、初めから";
+            case (int)CellTypeNum.Start:
+                return "この文章も出たらエラーね。";
+            case (int)CellTypeNum.Goal:
+                return "おめー";
+            default:
+                return "これも出たらエラー";
+        }    
     }
 
 }

@@ -27,6 +27,8 @@ public class RoleAttach : MonoBehaviour
     TurnAdmin TA;
     PCardAttach[] PCA = new PCardAttach[6];
 
+    public List<int> pastPathNum = new List<int>() { 0 };
+
     // Start is called before the first frame update
     void Start()
     {
@@ -68,7 +70,7 @@ public class RoleAttach : MonoBehaviour
             if (isCom)
             {
                 //CPU（Role１～３）にアタッチされている場合
-                choicedNum = Random.Range(1, 6);
+                choicedNum = Random.Range(1, 7);
                 Debug.Log("Com" + roleNum + "は、" + choicedNum + "を選択しました。");
                 //MoveComCard(roleNum,choicedNum);
                 hasFinishedChoicing = true;
