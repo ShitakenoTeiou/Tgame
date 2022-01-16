@@ -216,12 +216,14 @@ public class TurnAdmin : MonoBehaviour
         int currentCellCount = RA[firstTurnNum].currentCellCount;
         int currentCellCordinateRowID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount].cordinates[0];
         int currentCellCordinateColumnID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount].cordinates[1];
+        int nextPathNum;
         int nextCellCordinateRowID;
         int nextCellCordinateColumnID;
 
 
-        if (currentCellCount + 1 < loadProductInstance.pathList[currentPathNum].holdingCell.Count)
+        if (currentCellCount + 2 < loadProductInstance.pathList[currentPathNum].holdingCell.Count)
         {
+            //同じパス内で進むとき
             nextCellCordinateRowID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount + 1].cordinates[0];
             nextCellCordinateColumnID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount + 1].cordinates[1];
             RA[firstTurnNum].currentCellCount += 1;
@@ -229,9 +231,10 @@ public class TurnAdmin : MonoBehaviour
         else
         {
             //一旦、ネクストパスの選択を固定にしている。nextPath[]の数字の中身を選択させることで、分岐を選択できるようにする。
-            nextCellCordinateRowID = loadProductInstance.pathList[loadProductInstance.pathList[currentPathNum].nextPath[0]].holdingCell[0].cordinates[0];
-            nextCellCordinateColumnID = loadProductInstance.pathList[loadProductInstance.pathList[currentPathNum].nextPath[0]].holdingCell[0].cordinates[1];
-            RA[firstTurnNum].pastPathNum.Add(currentPathNum);
+            nextPathNum = loadProductInstance.pathList[currentPathNum].nextPath[loadProductInstance.pathList[currentPathNum].nextPath.Count - 1];
+            nextCellCordinateRowID = loadProductInstance.pathList[nextPathNum].holdingCell[0].cordinates[0];
+            nextCellCordinateColumnID = loadProductInstance.pathList[nextPathNum].holdingCell[0].cordinates[1];
+            RA[firstTurnNum].pastPathNum.Add(nextPathNum);
             RA[firstTurnNum].currentPathCount = loadProductInstance.pathList[currentPathNum].nextPath[0];
             if (loadProductInstance.pathList[currentPathNum].nextPath[0] == 0)
             {
@@ -259,25 +262,33 @@ public class TurnAdmin : MonoBehaviour
         int currentPathNum = RA[firstTurnNum].currentPathCount;
         int currentCellCount = RA[firstTurnNum].currentCellCount;
         int currentCellCordinateRowID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount].cordinates[0];
+        //ここで、なんかエラー
         int currentCellCordinateColumnID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount].cordinates[1];
+        int pastPathNumLastNum = RA[firstTurnNum].pastPathNum.Count - 1;
+        //pastPathNumの最後のカウントから１を引いた数。要素数の最大値を取得するためのもの
+        int previousPathNum = RA[firstTurnNum].pastPathNum[pastPathNumLastNum - 1];
+        //カウントをそのまま入れちゃうと、配列に入れたらオーバーフローしちゃうので、いつもマイナス１して最後の数を表してた。最後の数よりももう一つ前なので、２を引く。
+        //RAのpastPathNumは、これ。public List<int> pastPathNum = new List<int>() { 0 };
         int nextCellCordinateRowID;
         int nextCellCordinateColumnID;
 
         if(currentCellCount == 0)
         {
-            nextCellCordinateRowID = loadProductInstance.pathList[RA[firstTurnNum].pastPathNum[RA[firstTurnNum].pastPathNum.Count - 1]].holdingCell[0].cordinates[0];
-            nextCellCordinateColumnID = loadProductInstance.pathList[RA[firstTurnNum].pastPathNum[RA[firstTurnNum].pastPathNum.Count - 1]].holdingCell[0].cordinates[1];
-            RA[firstTurnNum].pastPathNum.RemoveAt(RA[firstTurnNum].pastPathNum.Count - 1);
-            RA[firstTurnNum].currentPathCount = RA[firstTurnNum].pastPathNum[RA[firstTurnNum].pastPathNum.Count - 1];
-            RA[firstTurnNum].currentCellCount = loadProductInstance.pathList.Count - 1;
+            //ひとつ前のカウントに戻る場合
+            nextCellCordinateRowID = loadProductInstance.pathList[previousPathNum].holdingCell[0].cordinates[0];
+            nextCellCordinateColumnID = loadProductInstance.pathList[previousPathNum].holdingCell[0].cordinates[1];
+            RA[firstTurnNum].pastPathNum.RemoveAt(pastPathNumLastNum);
+            RA[firstTurnNum].currentPathCount = previousPathNum;
+            RA[firstTurnNum].currentCellCount = loadProductInstance.pathList[previousPathNum].holdingCell.Count-1;
             if ((RA[firstTurnNum].currentPathCount == 0) && (RA[firstTurnNum].currentCellCount == 0))
             {
+                //スタート地点に戻った場合は、これ以上戻らないようにする。
                 return 1;
             }
-            
         }
         else
         {
+            //現在のパスの中で戻る場合
             nextCellCordinateRowID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount - 1].cordinates[0];
             nextCellCordinateColumnID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount - 1].cordinates[1];
             RA[firstTurnNum].currentCellCount -= 1;
@@ -285,6 +296,7 @@ public class TurnAdmin : MonoBehaviour
 
         if (currentCellCordinateRowID == nextCellCordinateRowID)
         {
+            //現在のRowと前のRowのIDが同じ場合は、Columnが変わっているということになる。
             GameObject.Find(OyaPlayer + "Piece").transform.position += new Vector3(13 * (nextCellCordinateColumnID - currentCellCordinateColumnID), 0, 0);
         }
         else

@@ -27,7 +27,7 @@ public class RoleAttach : MonoBehaviour
     TurnAdmin TA;
     PCardAttach[] PCA = new PCardAttach[6];
 
-    public List<int> pastPathNum = new List<int>() { 0 };
+    public List<int> pastPathNum = new List<int>() ;
 
     // Start is called before the first frame update
     void Start()
