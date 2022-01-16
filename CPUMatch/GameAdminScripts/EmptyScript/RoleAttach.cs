@@ -15,7 +15,7 @@ public class RoleAttach : MonoBehaviour
     public int choicedNum;
     public string roleName;
     public Vector3 nowPos;
-    public int currentPathCount = 0;
+    public int currentPathNum = 0;
     //何番目の分岐かを表す。
     public int currentCellCount = 0;
     //分岐の中の何番目のマスなのかを表す。

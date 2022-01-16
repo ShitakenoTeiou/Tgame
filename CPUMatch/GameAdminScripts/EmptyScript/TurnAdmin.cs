@@ -212,16 +212,18 @@ public class TurnAdmin : MonoBehaviour
     public int PieceMoveForward(string OyaPlayer)
     {
 
-        int currentPathNum = RA[firstTurnNum].currentPathCount;
+        int currentPathNum = RA[firstTurnNum].currentPathNum;
         int currentCellCount = RA[firstTurnNum].currentCellCount;
         int currentCellCordinateRowID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount].cordinates[0];
         int currentCellCordinateColumnID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount].cordinates[1];
         int nextPathNum;
         int nextCellCordinateRowID;
         int nextCellCordinateColumnID;
+        int PathMaxCellCount = loadProductInstance.pathList[currentPathNum].holdingCell.Count;
+        int tmpPathNum = 0;/*loadProductInstance.pathList[currentPathNum].nextPath.Count - 1;*/
 
 
-        if (currentCellCount + 2 < loadProductInstance.pathList[currentPathNum].holdingCell.Count)
+        if (currentCellCount + 1 < PathMaxCellCount)
         {
             //同じパス内で進むとき
             nextCellCordinateRowID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount + 1].cordinates[0];
@@ -231,11 +233,11 @@ public class TurnAdmin : MonoBehaviour
         else
         {
             //一旦、ネクストパスの選択を固定にしている。nextPath[]の数字の中身を選択させることで、分岐を選択できるようにする。
-            nextPathNum = loadProductInstance.pathList[currentPathNum].nextPath[loadProductInstance.pathList[currentPathNum].nextPath.Count - 1];
+            nextPathNum = loadProductInstance.pathList[currentPathNum].nextPath[tmpPathNum];
             nextCellCordinateRowID = loadProductInstance.pathList[nextPathNum].holdingCell[0].cordinates[0];
             nextCellCordinateColumnID = loadProductInstance.pathList[nextPathNum].holdingCell[0].cordinates[1];
             RA[firstTurnNum].pastPathNum.Add(nextPathNum);
-            RA[firstTurnNum].currentPathCount = loadProductInstance.pathList[currentPathNum].nextPath[0];
+            RA[firstTurnNum].currentPathNum = nextPathNum;
             if (loadProductInstance.pathList[currentPathNum].nextPath[0] == 0)
             {
                 return 1;
@@ -259,7 +261,7 @@ public class TurnAdmin : MonoBehaviour
 
     public int PieceMoveBackward(string OyaPlayer)
     {
-        int currentPathNum = RA[firstTurnNum].currentPathCount;
+        int currentPathNum = RA[firstTurnNum].currentPathNum;
         int currentCellCount = RA[firstTurnNum].currentCellCount;
         int currentCellCordinateRowID = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount].cordinates[0];
         //ここで、なんかエラー
@@ -278,9 +280,9 @@ public class TurnAdmin : MonoBehaviour
             nextCellCordinateRowID = loadProductInstance.pathList[previousPathNum].holdingCell[0].cordinates[0];
             nextCellCordinateColumnID = loadProductInstance.pathList[previousPathNum].holdingCell[0].cordinates[1];
             RA[firstTurnNum].pastPathNum.RemoveAt(pastPathNumLastNum);
-            RA[firstTurnNum].currentPathCount = previousPathNum;
+            RA[firstTurnNum].currentPathNum = previousPathNum;
             RA[firstTurnNum].currentCellCount = loadProductInstance.pathList[previousPathNum].holdingCell.Count-1;
-            if ((RA[firstTurnNum].currentPathCount == 0) && (RA[firstTurnNum].currentCellCount == 0))
+            if ((RA[firstTurnNum].currentPathNum == 0) && (RA[firstTurnNum].currentCellCount == 0))
             {
                 //スタート地点に戻った場合は、これ以上戻らないようにする。
                 return 1;
@@ -310,7 +312,7 @@ public class TurnAdmin : MonoBehaviour
 
         public string InvokeCellEffect(string OyaPlayer)
     {
-        int currentPathNum = RA[firstTurnNum].currentPathCount;
+        int currentPathNum = RA[firstTurnNum].currentPathNum;
         int currentCellCount = RA[firstTurnNum].currentCellCount;
         int currentCellEffectNum = loadProductInstance.pathList[currentPathNum].holdingCell[currentCellCount].effectNum;
         int cellEffectNumTenPlace = (currentCellEffectNum - (currentCellEffectNum % 10)) / 10;
@@ -368,7 +370,7 @@ public class TurnAdmin : MonoBehaviour
             case (int)CellTypeNum.GoStart:
                 GameObject.Find(OyaPlayer + "Piece").transform.position = new Vector3((loadProductInstance.pathList[0].holdingCell[0].cordinates[1] * 13) - 100, 2, 43 - ((loadProductInstance.pathList[0].holdingCell[0].cordinates[0] - 1) * 12)) + defaultPos;
                 RA[firstTurnNum].pastPathNum = new List<int>() { 0 };
-                RA[firstTurnNum].currentPathCount = 0;
+                RA[firstTurnNum].currentPathNum = 0;
                 RA[firstTurnNum].currentCellCount = 0;
                 return "はい、初めから";
             case (int)CellTypeNum.Start:
